@@ -1,375 +1,144 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<title>Заказ доставки</title>
-<style>
-  /* --- Базовые стили --- */
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #e0f0ff, #f7f9fc);
-    margin: 0;
-    padding: 15px 10px;
-    color: #333;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  h2 {
-    text-align: center;
-    color: #0077cc;
-    margin-bottom: 25px;
-    font-weight: 700;
-    font-size: 1.8rem;
-  }
-  form {
-    width: 100%;
-    max-width: 420px;
-    background: #fff;
-    padding: 25px 30px 30px;
-    border-radius: 14px;
-    box-shadow: 0 8px 20px rgba(0, 119, 204, 0.15);
-    box-sizing: border-box;
-  }
-  label {
-    font-weight: 600;
-    display: block;
-    margin-bottom: 8px;
-    font-size: 1rem;
-    color: #444;
-  }
-  input[type="tel"],
-  input[type="file"],
-  input[type="text"] {
-    width: 100%;
-    padding: 14px 15px;
-    border-radius: 12px;
-    border: 1.8px solid #bbb;
-    font-size: 1rem;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    outline-offset: 2px;
-  }
-  input[type="tel"]:focus,
-  input[type="file"]:focus,
-  input[type="text"]:focus {
-    border-color: #0077cc;
-    box-shadow: 0 0 10px #0077ccaa;
-    outline: none;
-  }
-  /* Фото превью */
-  #photo-preview {
-    max-width: 100%;
-    margin-top: 12px;
-    border-radius: 14px;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
-    display: none;
-    object-fit: contain;
-  }
-  /* Кнопки */
-  button {
-    width: 100%;
-    background-color: #0077cc;
-    border: none;
-    color: white;
-    font-size: 1.15rem;
-    padding: 14px 0;
-    border-radius: 14px;
-    cursor: pointer;
-    margin-top: 20px;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 119, 204, 0.25);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  }
-  button:hover {
-    background-color: #005fa3;
-    box-shadow: 0 6px 20px rgba(0, 95, 163, 0.45);
-  }
-  #get-current-location {
-    width: auto;
-    background-color: #28a745;
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
-    margin-top: 8px;
-    padding: 12px 22px;
-    font-weight: 700;
-    font-size: 1rem;
-    border-radius: 14px;
-  }
-  #get-current-location:hover {
-    background-color: #218838;
-    box-shadow: 0 6px 20px rgba(33, 136, 56, 0.45);
-  }
-  /* Статус геолокации */
-  #location-status {
-    font-style: italic;
-    margin: 10px 0 15px;
-    color: #555;
-    min-height: 22px;
-    font-size: 0.9rem;
-  }
-  /* Радиокнопки - стиль переключателей */
-  .geo-options, .delivery-options {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-  }
-  .geo-options label, .delivery-options label {
-    flex-grow: 1;
-    position: relative;
-    cursor: pointer;
-    font-weight: 600;
-    user-select: none;
-    padding-left: 40px;
-    color: #555;
-    font-size: 1rem;
-  }
-  .geo-options input[type="radio"],
-  .delivery-options input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-  }
-  .geo-options input[type="radio"] + span,
-  .delivery-options input[type="radio"] + span {
-    position: relative;
-    display: inline-block;
-    padding: 10px 18px;
-    border: 2px solid #bbb;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-    color: #555;
-    font-weight: 600;
-  }
-  .geo-options input[type="radio"]:checked + span,
-  .delivery-options input[type="radio"]:checked + span {
-    background-color: #0077cc;
-    color: white;
-    border-color: #0077cc;
-    box-shadow: 0 0 12px #0077ccaa;
-  }
-  /* Скрываем дефолтные радиокнопки */
-  .geo-options input[type="radio"],
-  .delivery-options input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-  /* Для мобильных: адаптивность */
-  @media (max-width: 480px) {
-    form {
-      padding: 20px 20px 25px;
-      border-radius: 12px;
-    }
-    button, #get-current-location {
-      font-size: 1.1rem;
-      padding: 12px 0;
-      border-radius: 12px;
-    }
-    .geo-options, .delivery-options {
-      flex-direction: column;
-    }
-    .geo-options label, .delivery-options label {
-      padding-left: 35px;
-      font-size: 1.1rem;
-    }
-  }
-</style>
-</head>
-<body>
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import telebot
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton, WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
+from uuid import uuid4
+from io import BytesIO
 
-<h2>Оформление доставки</h2>
+app = Flask(__name__)
+CORS(app)
 
-<form id="order-form" autocomplete="off" novalidate>
-  <label for="phone">Номер телефона:</label>
-  <input
-    type="tel"
-    id="phone"
-    name="phone"
-    placeholder="+7XXXXXXXXXX"
-    pattern="^\+7\d{10}$"
-    required
-    title="Введите номер в формате +7XXXXXXXXXX"
-  />
+BOT_TOKEN = '8135740899:AAHzRcsdGJhcoDiim0UZEN1zFtDHmkhza1c'  # Твой токен
+CHAT_ID = '-4966315080'  # Твой chat_id (группа или чат)
+bot = telebot.TeleBot(BOT_TOKEN)
 
-  <label>Тип доставки:</label>
-  <div class="delivery-options" role="radiogroup" aria-label="Тип доставки">
-    <label>
-      <input type="radio" id="delivery1" name="delivery_type" value="Обычная доставка (150₽)" checked />
-      <span>Обычная доставка — 150₽</span>
-    </label>
-    <label>
-      <input type="radio" id="delivery2" name="delivery_type" value="Проверка товара курьером (200₽)" />
-      <span>Курьер проверяет товар — 200₽</span>
-    </label>
-  </div>
+MINIAPP_URL = "https://tomasdiada.github.io/delivery-miniapp/"
 
-  <label for="photo">Фото товара:</label>
-  <input type="file" id="photo" name="photo" accept="image/*" required />
-  <img id="photo-preview" alt="Превью фото" />
+# Хранилище заказов: order_id -> данные
+orders = {}
 
-  <p class="geo-mode" style="font-weight:700; margin-bottom:8px;">Способ указания геопозиции:</p>
-  <div class="geo-options" role="radiogroup" aria-label="Способ указания геопозиции">
-    <label>
-      <input type="radio" name="geo_mode" value="current" checked />
-      <span>Текущая позиция</span>
-    </label>
-    <label>
-      <input type="radio" name="geo_mode" value="address" />
-      <span>Ввести адрес вручную</span>
-    </label>
-  </div>
+@app.route('/api/order', methods=['POST'])
+def handle_order():
+    phone = request.form.get('phone')
+    latitude = request.form.get('latitude')
+    longitude = request.form.get('longitude')
+    photo = request.files.get('photo')
 
-  <button type="button" id="get-current-location">📍 Получить текущую геопозицию</button>
+    if not all([phone, latitude, longitude, photo]):
+        return "Missing data", 400
 
-  <input type="text" id="address-input" name="address" placeholder="Введите адрес доставки" style="display:none;" autocomplete="off" />
+    order_id = str(uuid4())[:8]
+    photo_bytes = photo.read()
+    photo_io = BytesIO(photo_bytes)
+    photo_io.name = photo.filename
 
-  <p id="location-status"></p>
-
-  <input type="hidden" id="latitude" name="latitude" />
-  <input type="hidden" id="longitude" name="longitude" />
-
-  <button type="submit">Отправить заказ</button>
-</form>
-
-<script>
-  const geoModeRadios = document.querySelectorAll('input[name="geo_mode"]');
-  const getLocationBtn = document.getElementById('get-current-location');
-  const locationStatus = document.getElementById('location-status');
-  const addressInput = document.getElementById('address-input');
-  const latitudeInput = document.getElementById('latitude');
-  const longitudeInput = document.getElementById('longitude');
-  const photoInput = document.getElementById('photo');
-  const photoPreview = document.getElementById('photo-preview');
-  const phoneInput = document.getElementById('phone');
-
-  function toggleGeoInput() {
-    const selected = document.querySelector('input[name="geo_mode"]:checked').value;
-    if (selected === 'current') {
-      getLocationBtn.style.display = 'inline-block';
-      addressInput.style.display = 'none';
-      addressInput.value = '';
-      latitudeInput.value = '';
-      longitudeInput.value = '';
-      locationStatus.textContent = '';
-    } else {
-      getLocationBtn.style.display = 'none';
-      addressInput.style.display = 'block';
-      latitudeInput.value = '';
-      longitudeInput.value = '';
-      locationStatus.textContent = '';
-    }
-  }
-
-  geoModeRadios.forEach(radio => {
-    radio.addEventListener('change', toggleGeoInput);
-  });
-
-  getLocationBtn.addEventListener('click', () => {
-    if (!navigator.geolocation) {
-      locationStatus.textContent = 'Геолокация не поддерживается вашим браузером';
-      return;
-    }
-    locationStatus.textContent = 'Определение местоположения...';
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        locationStatus.textContent = `Широта: ${position.coords.latitude.toFixed(6)}, Долгота: ${position.coords.longitude.toFixed(6)}`;
-        latitudeInput.value = position.coords.latitude;
-        longitudeInput.value = position.coords.longitude;
-      },
-      (error) => {
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            locationStatus.textContent = 'Доступ к геолокации запрещён';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            locationStatus.textContent = 'Информация о местоположении недоступна';
-            break;
-          case error.TIMEOUT:
-            locationStatus.textContent = 'Превышено время ожидания запроса геолокации';
-            break;
-          default:
-            locationStatus.textContent = 'Ошибка при получении геолокации';
-        }
-      }
-    );
-  });
-
-  photoInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        photoPreview.src = evt.target.result;
-        photoPreview.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    } else {
-      photoPreview.style.display = 'none';
-      photoPreview.src = '';
-    }
-  });
-
-  document.getElementById('order-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    // Валидация номера телефона
-    if (!phoneInput.checkValidity()) {
-      alert('Пожалуйста, введите корректный номер телефона в формате +7XXXXXXXXXX');
-      phoneInput.focus();
-      return;
+    orders[order_id] = {
+        'phone': phone,
+        'latitude': latitude,
+        'longitude': longitude,
+        'photo': photo_bytes,
+        'status': 'Новый'
     }
 
-    // Проверка выбора фото
-    if (!photoInput.files.length) {
-      alert('Пожалуйста, прикрепите фото товара');
-      photoInput.focus();
-      return;
+    maps_url = f"https://yandex.ru/maps/?ll={longitude},{latitude}&z=16&pt={longitude},{latitude},pm2rdm"
+    message_text = (
+        f"📦 Новый заказ #{order_id}!\n"
+        f"📱 Телефон: {phone}\n"
+        f"📍 Геопозиция: [Открыть в Яндекс.Картах]({maps_url})\n"
+        f"Статус: Новый"
+    )
+
+    markup = InlineKeyboardMarkup()
+    markup.add(
+        InlineKeyboardButton("Принят", callback_data=f"{order_id}|Принят"),
+        InlineKeyboardButton("В работе", callback_data=f"{order_id}|В работе"),
+        InlineKeyboardButton("Выполнен", callback_data=f"{order_id}|Выполнен"),
+    )
+
+    try:
+        bot.send_message(CHAT_ID, message_text, reply_markup=markup, parse_mode='Markdown')
+        bot.send_photo(CHAT_ID, photo_io)
+    except Exception as e:
+        print(f"Ошибка отправки сообщения или фото: {e}")
+
+    return jsonify({'status': 'ok', 'order_id': order_id})
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_handler(call):
+    order_id, new_status = call.data.split('|')
+    order = orders.get(order_id)
+
+    if not order:
+        bot.answer_callback_query(call.id, "Заказ не найден")
+        return
+
+    user = call.from_user
+    username_display = user.username or f"{user.first_name or ''} {user.last_name or ''}".strip()
+    user_id = user.id
+
+    if 'status_users' not in order:
+        order['status_users'] = {}
+
+    # Сохраняем username и user_id для каждого статуса
+    order['status_users'][new_status] = (username_display, user_id)
+
+    maps_url = f"https://yandex.ru/maps/?ll={order['longitude']},{order['latitude']}&z=16&pt={order['longitude']},{order['latitude']},pm2rdm"
+
+    status_texts = {
+        'Принят': '✅ Принят',
+        'В работе': '🔧 В работе',
+        'Выполнен': '✔️ Выполнен'
     }
 
-    // Проверка геопозиции
-    const geoMode = document.querySelector('input[name="geo_mode"]:checked').value;
-    if (geoMode === 'current') {
-      if (!latitudeInput.value || !longitudeInput.value) {
-        alert('Пожалуйста, получите вашу текущую геопозицию');
-        getLocationBtn.focus();
-        return;
-      }
-    } else {
-      if (!addressInput.value.trim()) {
-        alert('Пожалуйста, введите адрес доставки');
-        addressInput.focus();
-        return;
-      }
-    }
+    status_lines = []
+    for status_key in ['Принят', 'В работе', 'Выполнен']:
+        user_data = order['status_users'].get(status_key)
+        if user_data:
+            name, uid = user_data
+            # Создаём ссылку на профиль
+            clickable_name = f"[{name}](tg://user?id={uid})"
+            status_lines.append(f"{status_texts[status_key]}: {clickable_name}")
 
-    // Собираем данные формы
-    const formData = new FormData(e.target);
+    statuses_info = '\n'.join(status_lines) if status_lines else "Статус пока не установлен."
 
-    // Пример вывода в консоль (здесь можно отправить данные на сервер)
-    console.log('Данные заказа:');
-    for (const pair of formData.entries()) {
-      console.log(`${pair[0]}: ${pair[1]}`);
-    }
+    new_text = (
+        f"📦 Заказ #{order_id}\n"
+        f"📱 Телефон: {order['phone']}\n"
+        f"📍 Геопозиция: [Открыть в Яндекс.Картах]({maps_url})\n\n"
+        f"{statuses_info}"
+    )
 
-    alert('Заказ успешно отправлен!');
+    bot.edit_message_text(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        text=new_text,
+        reply_markup=call.message.reply_markup,
+        parse_mode='Markdown'
+    )
 
-    // Сброс формы и скрытие превью фото
-    e.target.reset();
-    photoPreview.style.display = 'none';
-    locationStatus.textContent = '';
-    latitudeInput.value = '';
-    longitudeInput.value = '';
-    toggleGeoInput();
-  });
+    bot.answer_callback_query(call.id, f"Статус «{new_status}» установлен пользователем {username_display}")
 
-  toggleGeoInput();
-</script>
 
-</body>
-</html>
+
+
+@bot.message_handler(commands=['start'])
+def start_message(message):
+    markup = ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    web_app = WebAppInfo(url=MINIAPP_URL)
+    button = KeyboardButton(text="Открыть заказ", web_app=web_app)
+    markup.add(button)
+    bot.send_message(message.chat.id, "Привет! Нажми кнопку ниже, чтобы открыть форму заказа:", reply_markup=markup)
+
+@app.route(f'/{BOT_TOKEN}', methods=['POST'])
+def telegram_webhook():
+    json_string = request.get_data().decode('utf-8')
+    update = telebot.types.Update.de_json(json_string)
+    bot.process_new_updates([update])
+    return '', 200
+
+if __name__ == '__main__':
+    NGROK_URL = 'https://13ba-5-35-38-182.ngrok-free.app'
+    bot.remove_webhook()
+    bot.set_webhook(url=NGROK_URL + '/' + BOT_TOKEN)
+
+    app.run(host='0.0.0.0', port=5000)
