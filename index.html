@@ -91,6 +91,15 @@
     title="Введите номер в формате +7XXXXXXXXXX"
   />
 
+  <label>Тип доставки:</label>
+  <div style="margin-bottom: 12px;">
+    <input type="radio" id="delivery1" name="delivery_type" value="Обычная доставка (150₽)" checked />
+    <label for="delivery1">Обычная доставка — 150₽</label><br />
+
+    <input type="radio" id="delivery2" name="delivery_type" value="Проверка товара курьером (200₽)" />
+    <label for="delivery2">Курьер проверяет товар — 200₽</label>
+  </div>
+
   <label for="photo">Фото товара:</label>
   <input type="file" id="photo" name="photo" accept="image/*" required />
   <img id="photo-preview" alt="Превью фото" />
@@ -113,7 +122,6 @@
   const photoPreview = document.getElementById('photo-preview');
   const phoneInput = document.getElementById('phone');
 
-  // Показываем превью фото
   photoInput.addEventListener('change', () => {
     const file = photoInput.files[0];
     if (file) {
@@ -172,11 +180,14 @@
       return;
     }
 
+    const deliveryType = document.querySelector('input[name="delivery_type"]:checked').value;
+
     const formData = new FormData();
     formData.append('phone', phoneVal);
     formData.append('photo', photoInput.files[0]);
     formData.append('latitude', latitudeInput.value);
     formData.append('longitude', longitudeInput.value);
+    formData.append('delivery_type', deliveryType);
 
     try {
       const response = await fetch('https://13ba-5-35-38-182.ngrok-free.app/api/order', {
