@@ -31,8 +31,7 @@
       font-weight: 600;
     }
     input[type="tel"],
-    input[type="file"],
-    input[type="text"] {
+    input[type="file"] {
       width: 100%;
       padding: 10px;
       border-radius: 6px;
@@ -41,8 +40,7 @@
       box-sizing: border-box;
     }
     input[type="tel"]:focus,
-    input[type="file"]:focus,
-    input[type="text"]:focus {
+    input[type="file"]:focus {
       border-color: #0077cc;
       outline: none;
       box-shadow: 0 0 8px #0077ccaa;
@@ -93,15 +91,6 @@
     title="Введите номер в формате +7XXXXXXXXXX"
   />
 
-  <label for="tg_id">Telegram ID:</label>
-  <input
-    type="text"
-    id="tg_id"
-    name="tg_id"
-    placeholder="Введите ваш Telegram ID"
-    required
-  />
-
   <label for="photo">Фото товара:</label>
   <input type="file" id="photo" name="photo" accept="image/*" required />
   <img id="photo-preview" alt="Превью фото" />
@@ -123,7 +112,6 @@
   const photoInput = document.getElementById('photo');
   const photoPreview = document.getElementById('photo-preview');
   const phoneInput = document.getElementById('phone');
-  const tgInput = document.getElementById('tg_id');
 
   // Показываем превью фото
   photoInput.addEventListener('change', () => {
@@ -164,19 +152,11 @@
     e.preventDefault();
 
     const phoneVal = phoneInput.value.trim();
-    const tgVal = tgInput.value.trim();
 
-    // Валидация телефона через pattern html + доп проверка JS
     const phoneValid = /^\+7\d{10}$/.test(phoneVal);
     if (!phoneValid) {
       alert('Введите номер телефона в формате +7XXXXXXXXXX');
       phoneInput.focus();
-      return;
-    }
-
-    if (!tgVal) {
-      alert('Пожалуйста, введите ваш Telegram ID');
-      tgInput.focus();
       return;
     }
 
@@ -194,7 +174,6 @@
 
     const formData = new FormData();
     formData.append('phone', phoneVal);
-    formData.append('tg_id', tgVal);
     formData.append('photo', photoInput.files[0]);
     formData.append('latitude', latitudeInput.value);
     formData.append('longitude', longitudeInput.value);
