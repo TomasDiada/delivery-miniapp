@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Заказ доставки</title>
+</head>
+<body>
+
+<h2>Оформление заказа</h2>
+
+<form id="order-form">
+  <label>Номер телефона:<br />
+    <input type="tel" id="phone" placeholder="+7XXXXXXXXXX" required />
+  </label>
+  <br /><br />
+
+  <label>Фото товара:<br />
+    <input type="file" id="photo" accept="image/*" capture="environment" required />
+  </label>
+  <br /><br />
+
+  <button type="button" id="get-location">Получить геопозицию</button>
+  <p id="location-status"></p>
+
+  <input type="hidden" id="latitude" name="latitude" />
+  <input type="hidden" id="longitude" name="longitude" />
+
+  <br />
+  <button type="submit">Отправить заказ</button>
+</form>
+
+<script>
+  document.getElementById('get-location').onclick = function() {
+    const status = document.getElementById('location-status');
+    if (!navigator.geolocation) {
+      status.textContent = 'Геолокация не поддерживается вашим браузером';
+      return;
+    }
+    status.textContent = 'Получаем геопозицию...';
+    navigator.geolocation.getCurrentPosition((position) => {
+      status.textContent = 'Геопозиция получена';
+      document.getElementById('latitude').value = position.coords.latitude;
+      document.getElementById('longitude').value = position.coords.longitude;
+    }, () => {
+      status.textContent = 'Не удалось получить геопозицию';
+    });
+  };
+
+  document.getElementById('order-form').onsubmit = async function(e) {
+    e.preventDefault();
+
+    const phone = document.getElementById('phone').value.trim();
+    const photoInput = document.getElementById('photo');
+    const latitude = document.getElementById('latitude').value;
+    const longitude = document.getElementById('longitude').value;
+
+    if (!phone || !photoInput.files.length || !latitude || !longitude) {
+      alert('Пожалуйста, заполните все поля и получите геопозицию');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('phone', phone);
+    formData.append('photo', photoInput.files[0]);
+    formData.append('latitude', latitude);
+    formData.append('longitude', longitude);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/order', {
+        method: 'POST',
+        body: formData
+      });
+      if (response.ok) {
+        alert('Заказ отправлен!');
+      } else {
+        alert('Ошибка отправки заказа');
+      }
+    } catch (error) {
+      alert('Ошибка сети: ' + error.message);
+    }
+  };
+</script>
+
+</body>
+</html>
