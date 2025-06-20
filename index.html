@@ -1,110 +1,91 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Заказ доставки</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    max-width: 480px;
-    margin: auto;
-    background: #f9f9f9;
-    color: #333;
-  }
-
-  h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #0078d7;
-  }
-
-  form {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-
-  label {
-    display: block;
-    margin-bottom: 12px;
-    font-weight: 600;
-  }
-
-  input[type="tel"],
-  input[type="file"] {
-    width: 100%;
-    padding: 12px 10px;
-    font-size: 16px;
-    border: 1.5px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box;
-  }
-
-  input[type="file"] {
-    padding: 6px 10px;
-  }
-
-  button {
-    background-color: #0078d7;
-    color: white;
-    border: none;
-    padding: 14px 20px;
-    font-size: 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 15px;
-    transition: background-color 0.3s ease;
-  }
-
-  button:hover {
-    background-color: #005fa3;
-  }
-
-  #get-location {
-    background-color: #e0e0e0;
-    color: #333;
-    padding: 12px 20px;
-    margin-bottom: 10px;
-    width: 100%;
-  }
-
-  #get-location:hover {
-    background-color: #c6c6c6;
-  }
-
-  #location-status {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 10px;
-    min-height: 18px;
-  }
-
-  @media (max-width: 480px) {
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Заказ доставки</title>
+  <style>
     body {
-      padding: 15px 10px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 20px;
+      color: #333;
     }
-
-    button, input[type="tel"], input[type="file"], #get-location {
+    h2 {
+      text-align: center;
+      color: #0077cc;
+      margin-bottom: 20px;
+    }
+    form {
+      max-width: 400px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+    }
+    label {
+      display: block;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    input[type="tel"],
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #bbb;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    input[type="tel"]:focus,
+    input[type="file"]:focus {
+      border-color: #0077cc;
+      outline: none;
+      box-shadow: 0 0 8px #0077ccaa;
+    }
+    button {
+      width: 100%;
+      background-color: #0077cc;
+      border: none;
+      color: white;
       font-size: 18px;
-      padding: 16px 12px;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background-color 0.3s ease;
     }
-  }
-</style>
+    button:hover {
+      background-color: #005fa3;
+    }
+    #location-status {
+      font-style: italic;
+      margin: 8px 0 15px 0;
+      color: #555;
+      min-height: 20px;
+    }
+    #photo-preview {
+      max-width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+    }
+  </style>
 </head>
 <body>
 
-<h2>Оформление заказа</h2>
+<h2>Оформление заказа доставки</h2>
 
-<form id="order-form">
+<form id="order-form" autocomplete="off">
   <label for="phone">Номер телефона:</label>
-  <input type="tel" id="phone" placeholder="+7XXXXXXXXXX" required />
+  <input type="tel" id="phone" name="phone" placeholder="+7XXXXXXXXXX" pattern="^\+7\d{10}$" required 
+    title="Введите номер в формате +7XXXXXXXXXX" />
 
   <label for="photo">Фото товара:</label>
-  <input type="file" id="photo" accept="image/*" capture="environment" required />
+  <input type="file" id="photo" name="photo" accept="image/*" capture="environment" required />
+  <img id="photo-preview" alt="Превью фото" style="display:none" />
 
   <button type="button" id="get-location">Получить геопозицию</button>
   <p id="location-status"></p>
@@ -116,40 +97,73 @@
 </form>
 
 <script>
-  document.getElementById('get-location').onclick = function() {
-    const status = document.getElementById('location-status');
+  const locationBtn = document.getElementById('get-location');
+  const locationStatus = document.getElementById('location-status');
+  const latitudeInput = document.getElementById('latitude');
+  const longitudeInput = document.getElementById('longitude');
+  const photoInput = document.getElementById('photo');
+  const photoPreview = document.getElementById('photo-preview');
+  const phoneInput = document.getElementById('phone');
+
+  // Показываем превью фото
+  photoInput.addEventListener('change', () => {
+    const file = photoInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        photoPreview.src = e.target.result;
+        photoPreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      photoPreview.style.display = 'none';
+      photoPreview.src = '';
+    }
+  });
+
+  locationBtn.onclick = () => {
     if (!navigator.geolocation) {
-      status.textContent = 'Геолокация не поддерживается вашим браузером';
+      locationStatus.textContent = 'Геолокация не поддерживается вашим браузером';
       return;
     }
-    status.textContent = 'Получаем геопозицию...';
-    navigator.geolocation.getCurrentPosition((position) => {
-      status.textContent = 'Геопозиция получена';
-      document.getElementById('latitude').value = position.coords.latitude;
-      document.getElementById('longitude').value = position.coords.longitude;
+    locationStatus.textContent = 'Получаем геопозицию...';
+    navigator.geolocation.getCurrentPosition(position => {
+      locationStatus.textContent = 'Геопозиция получена';
+      latitudeInput.value = position.coords.latitude;
+      longitudeInput.value = position.coords.longitude;
     }, () => {
-      status.textContent = 'Не удалось получить геопозицию';
-    });
+      locationStatus.textContent = 'Не удалось получить геопозицию';
+    }, {timeout: 10000});
   };
 
   document.getElementById('order-form').onsubmit = async function(e) {
     e.preventDefault();
 
-    const phone = document.getElementById('phone').value.trim();
-    const photoInput = document.getElementById('photo');
-    const latitude = document.getElementById('latitude').value;
-    const longitude = document.getElementById('longitude').value;
+    // Валидация телефона через pattern html + доп проверка JS
+    const phoneValid = /^\+7\d{10}$/.test(phoneInput.value.trim());
+    if (!phoneValid) {
+      alert('Введите номер телефона в формате +7XXXXXXXXXX');
+      phoneInput.focus();
+      return;
+    }
 
-    if (!phone || !photoInput.files.length || !latitude || !longitude) {
-      alert('Пожалуйста, заполните все поля и получите геопозицию');
+    if (!photoInput.files.length) {
+      alert('Пожалуйста, выберите фото товара');
+      photoInput.focus();
+      return;
+    }
+
+    if (!latitudeInput.value || !longitudeInput.value) {
+      alert('Пожалуйста, получите геопозицию');
+      locationBtn.focus();
       return;
     }
 
     const formData = new FormData();
-    formData.append('phone', phone);
+    formData.append('phone', phoneInput.value.trim());
     formData.append('photo', photoInput.files[0]);
-    formData.append('latitude', latitude);
-    formData.append('longitude', longitude);
+    formData.append('latitude', latitudeInput.value);
+    formData.append('longitude', longitudeInput.value);
 
     try {
       const response = await fetch('https://13ba-5-35-38-182.ngrok-free.app/api/order', {
@@ -157,12 +171,14 @@
         body: formData
       });
       if (response.ok) {
-        alert('Заказ отправлен!');
-        // Можно очистить форму после успешной отправки:
-        document.getElementById('order-form').reset();
-        document.getElementById('location-status').textContent = '';
+        alert('Заказ успешно отправлен!');
+        this.reset();
+        photoPreview.style.display = 'none';
+        latitudeInput.value = '';
+        longitudeInput.value = '';
+        locationStatus.textContent = '';
       } else {
-        alert('Ошибка отправки заказа');
+        alert('Ошибка при отправке заказа. Попробуйте позже.');
       }
     } catch (error) {
       alert('Ошибка сети: ' + error.message);
