@@ -4,21 +4,107 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Заказ доставки</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 480px;
+    margin: auto;
+    background: #f9f9f9;
+    color: #333;
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #0078d7;
+  }
+
+  form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  input[type="tel"],
+  input[type="file"] {
+    width: 100%;
+    padding: 12px 10px;
+    font-size: 16px;
+    border: 1.5px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+  }
+
+  input[type="file"] {
+    padding: 6px 10px;
+  }
+
+  button {
+    background-color: #0078d7;
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #005fa3;
+  }
+
+  #get-location {
+    background-color: #e0e0e0;
+    color: #333;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  #get-location:hover {
+    background-color: #c6c6c6;
+  }
+
+  #location-status {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+    min-height: 18px;
+  }
+
+  @media (max-width: 480px) {
+    body {
+      padding: 15px 10px;
+    }
+
+    button, input[type="tel"], input[type="file"], #get-location {
+      font-size: 18px;
+      padding: 16px 12px;
+    }
+  }
+</style>
 </head>
 <body>
 
 <h2>Оформление заказа</h2>
 
 <form id="order-form">
-  <label>Номер телефона:<br />
-    <input type="tel" id="phone" placeholder="+7XXXXXXXXXX" required />
-  </label>
-  <br /><br />
+  <label for="phone">Номер телефона:</label>
+  <input type="tel" id="phone" placeholder="+7XXXXXXXXXX" required />
 
-  <label>Фото товара:<br />
-    <input type="file" id="photo" accept="image/*" capture="environment" required />
-  </label>
-  <br /><br />
+  <label for="photo">Фото товара:</label>
+  <input type="file" id="photo" accept="image/*" capture="environment" required />
 
   <button type="button" id="get-location">Получить геопозицию</button>
   <p id="location-status"></p>
@@ -26,7 +112,6 @@
   <input type="hidden" id="latitude" name="latitude" />
   <input type="hidden" id="longitude" name="longitude" />
 
-  <br />
   <button type="submit">Отправить заказ</button>
 </form>
 
@@ -73,6 +158,9 @@
       });
       if (response.ok) {
         alert('Заказ отправлен!');
+        // Можно очистить форму после успешной отправки:
+        document.getElementById('order-form').reset();
+        document.getElementById('location-status').textContent = '';
       } else {
         alert('Ошибка отправки заказа');
       }
