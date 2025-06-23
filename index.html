@@ -4,79 +4,84 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Заказ доставки</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f7f9fc;
-      margin: 0;
-      padding: 20px;
-      color: #333;
-    }
-    h2 {
-      text-align: center;
-      color: #0077cc;
-      margin-bottom: 20px;
-    }
-    form {
-      max-width: 400px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 20px 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
-    }
-    label {
-      display: block;
-      margin-bottom: 12px;
-      font-weight: 600;
-    }
-    input[type="tel"],
-    input[type="file"],
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #bbb;
-      font-size: 16px;
-      box-sizing: border-box;
-      margin-bottom: 12px;
-    }
-    input[type="tel"]:focus,
-    input[type="file"]:focus,
-    input[type="text"]:focus {
-      border-color: #0077cc;
-      outline: none;
-      box-shadow: 0 0 8px #0077ccaa;
-    }
-    button {
-      width: 100%;
-      background-color: #0077cc;
-      border: none;
-      color: white;
-      font-size: 18px;
-      padding: 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #005fa3;
-    }
-    #location-status {
-      font-style: italic;
-      margin: 8px 0 15px 0;
-      color: #555;
-      min-height: 20px;
-    }
-    #photo-preview {
-      max-width: 100%;
-      margin-top: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
-      display: none;
-    }
-  </style>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8f2f9;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+  }
+  h2 {
+    text-align: center;
+    color: #a50064;
+    margin-bottom: 20px;
+  }
+  form {
+    max-width: 420px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+  label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #222;
+  }
+  input[type="tel"],
+  input[type="file"],
+  textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: #fafafa;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  input:focus,
+  textarea:focus {
+    border-color: #a50064;
+    outline: none;
+    box-shadow: 0 0 8px #a5006440;
+  }
+  textarea {
+    resize: vertical;
+  }
+  button {
+    width: 100%;
+    background-color: #a50064;
+    border: none;
+    color: white;
+    font-size: 18px;
+    padding: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #8c0056;
+  }
+  #location-status {
+    font-style: italic;
+    margin: 10px 0 15px 0;
+    color: #555;
+    min-height: 20px;
+  }
+  #photo-preview {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: none;
+  }
+</style>
+
 </head>
 <body>
 
