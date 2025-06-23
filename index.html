@@ -108,7 +108,7 @@
     <label for="delivery2">Курьер проверяет товар — 200₽</label>
   </div>
 
-  <label for="photo">Фото товара:</label>
+  <label for="photo">QR код заказа:</label>
   <input type="file" id="photo" name="photo" accept="image/*" required />
   <img id="photo-preview" alt="Превью фото" />
 
@@ -189,7 +189,7 @@
     }
 
     if (!photoInput.files.length) {
-      alert('Пожалуйста, выберите фото товара');
+      alert('Пожалуйста, выберите фото QR кода');
       photoInput.focus();
       return;
     }
