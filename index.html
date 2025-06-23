@@ -14,9 +14,10 @@
     }
     /* Логотип */
     .logo {
-      max-width: 150px;
-      display: block;
       margin: 0 auto 25px auto;
+      display: block;
+      width: 150px;
+      height: 50px;
     }
     h2 {
       text-align: center;
@@ -120,8 +121,16 @@
 </head>
 <body>
 
-<!-- Логотип Wildberries (взял простой вариант) -->
-<img class="logo" src="https://cdn.worldvectorlogo.com/logos/wildberries-1.svg" alt="Wildberries" />
+<!-- Встроенный логотип Wildberries -->
+<div class="logo" aria-label="Wildberries">
+  <svg width="150" height="50" viewBox="0 0 150 50" fill="none" xmlns="http://www.w3.org/2000/svg" >
+    <rect width="150" height="50" rx="8" fill="#a50064"/>
+    <path d="M42 37L25 12H34L47 34L58 12H67L51 37H42Z" fill="white"/>
+    <path d="M82 37L74 12H81L90 29L99 12H106L98 37H82Z" fill="white"/>
+    <path d="M114 37V12H123V37H114Z" fill="white"/>
+  </svg>
+</div>
+
 
 <h2>Оформление заказа доставки</h2>
 
