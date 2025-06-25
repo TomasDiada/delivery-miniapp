@@ -232,8 +232,12 @@
       <div id="success-message" class="success-message">
         Заказ успешно отправлен! ✅
       </div>
+<!-- Кнопка и блок для отображения статуса заказа -->
+<button id="check-status-btn" style="margin-top: 20px;">Проверить статус заказа</button>
+<div id="order-status-result" style="margin-top: 10px; font-weight: bold;"></div>
     </form>
   </div>
+
 
 <script>
   // Инициализация Telegram WebApp
@@ -394,6 +398,7 @@
       
       if (response.ok) {
         const data = await response.json();
+        localStorage.setItem('order_id', data.order_id);
         app.successMessage.style.display = 'block';
         app.form.reset();
         app.photoPreview.style.display = 'none';
@@ -429,6 +434,35 @@
       app.addressError.style.display = 'none';
     }
   });
+const checkStatusBtn = document.getElementById('check-status-btn');
+const statusResult = document.getElementById('order-status-result');
+
+checkStatusBtn.onclick = async () => {
+  const orderId = localStorage.getItem('order_id');
+  if (!orderId) {
+    statusResult.textContent = 'Сначала оформите заказ.';
+    return;
+  }
+
+  try {
+    const response = await fetch(`https://5ba0-5-35-38-182.ngrok-free.app/api/status/${orderId}`);
+    if (!response.ok) throw new Error('Ошибка при получении статуса');
+
+    const data = await response.json();
+    statusResult.innerHTML = `Статус заказа #${data.order_id}: ${data.status_label}`;
+
+    if (data.history && data.history.length > 0) {
+      statusResult.innerHTML += '<br>История изменений:<ul>' +
+        data.history.map(h =>
+          `<li>${h.timestamp} — ${h.status} (${h.user})</li>`
+        ).join('') + '</ul>';
+    }
+  } catch (err) {
+    statusResult.textContent = 'Ошибка: ' + err.message;
+  }
+};
+
+
 </script>
 </body>
 </html>
