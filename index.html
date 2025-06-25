@@ -4,57 +4,99 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Заказ доставки</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
+  :root {
+    --primary-color: #a50064;
+    --primary-hover: #8c0056;
+    --secondary-color: #f8f2f9;
+    --text-color: #333;
+    --light-gray: #f5f5f5;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+  
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f8f2f9;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--secondary-color);
     margin: 0;
     padding: 20px;
-    color: #333;
+    color: var(--text-color);
+    line-height: 1.5;
   }
+  
   h2 {
     text-align: center;
-    color: #a50064;
+    color: var(--primary-color);
     margin-bottom: 20px;
+    font-size: 1.5rem;
   }
+  
   form {
     max-width: 420px;
     margin: 0 auto;
     background: #ffffff;
     padding: 25px 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
   }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
   label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     font-weight: 600;
-    color: #222;
+    color: var(--text-color);
   }
+  
   input[type="tel"],
+  input[type="text"],
   input[type="file"],
-  textarea {
+  textarea,
+  select {
     width: 100%;
     padding: 12px;
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 16px;
     box-sizing: border-box;
-    background-color: #fafafa;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--light-gray);
+    transition: all 0.3s ease;
   }
+  
   input:focus,
-  textarea:focus {
-    border-color: #a50064;
+  textarea:focus,
+  select:focus {
+    border-color: var(--primary-color);
     outline: none;
-    box-shadow: 0 0 8px #a5006440;
+    box-shadow: 0 0 8px rgba(165, 0, 100, 0.25);
   }
-  textarea {
-    resize: vertical;
+  
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 12px 0;
   }
+  
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  
+  .radio-option input {
+    width: auto;
+    margin: 0;
+  }
+  
   button {
     width: 100%;
-    background-color: #a50064;
+    background-color: var(--primary-color);
     border: none;
     color: white;
     font-size: 18px;
@@ -63,178 +105,330 @@
     cursor: pointer;
     margin-top: 15px;
     transition: background-color 0.3s ease;
+    font-weight: 600;
   }
+  
   button:hover {
-    background-color: #8c0056;
+    background-color: var(--primary-hover);
   }
+  
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
   #location-status {
     font-style: italic;
     margin: 10px 0 15px 0;
     color: #555;
     min-height: 20px;
   }
+  
   #photo-preview {
     max-width: 100%;
+    max-height: 200px;
     margin-top: 10px;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     display: none;
+    object-fit: contain;
+  }
+  
+  .loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .error-message {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-top: 5px;
+    display: none;
+  }
+  
+  .success-message {
+    color: #388e3c;
+    text-align: center;
+    margin: 20px 0;
+    font-weight: 500;
+    display: none;
   }
 </style>
-
 </head>
+
 <body>
-
-<h2>Оформление заказа доставки</h2>
-
-<form id="order-form" autocomplete="off">
-  <label for="phone">Номер телефона:</label>
-  <input
-    type="tel"
-    id="phone"
-    name="phone"
-    placeholder="+7XXXXXXXXXX"
-    pattern="^\+7\d{10}$"
-    required
-    title="Введите номер в формате +7XXXXXXXXXX"
-  />
-
-  <label>Тип доставки:</label>
-  <div style="margin-bottom: 12px;">
-    <input type="radio" id="delivery1" name="delivery_type" value="Обычная доставка (150₽)" checked />
-    <label for="delivery1">Обычная доставка — 150₽</label><br />
-
-    <input type="radio" id="delivery2" name="delivery_type" value="Проверка товара курьером (200₽)" />
-    <label for="delivery2">Курьер проверяет товар — 200₽</label>
+  <div id="app">
+    <h2>Оформление заказа доставки</h2>
+    
+    <form id="order-form" autocomplete="off">
+      <div class="form-group">
+        <label for="phone">Номер телефона:</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          placeholder="+7XXXXXXXXXX"
+          pattern="^\+7\d{10}$"
+          required
+          title="Введите номер в формате +7XXXXXXXXXX"
+        />
+        <div id="phone-error" class="error-message">Неверный формат телефона</div>
+      </div>
+      
+      <div class="form-group">
+        <label>Тип доставки:</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="delivery_type" value="Обычная доставка (150₽)" checked />
+            <span>Обычная доставка — 150₽</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="delivery_type" value="Проверка товара курьером (200₽)" />
+            <span>Курьер проверяет товар — 200₽</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="photo">QR код заказа:</label>
+        <input type="file" id="photo" name="photo" accept="image/*" required />
+        <div id="photo-error" class="error-message">Пожалуйста, загрузите фото QR кода</div>
+        <img id="photo-preview" alt="Превью фото" />
+      </div>
+      
+      <button type="button" id="get-location">
+        <span id="location-icon">📍</span> Получить геопозицию
+      </button>
+      <p id="location-status"></p>
+      
+      <div class="form-group">
+        <label for="address">Адрес доставки (если геопозиция не получена):</label>
+        <input
+          type="text"
+          id="address"
+          name="address"
+          placeholder="Введите адрес вручную"
+        />
+        <div id="address-error" class="error-message">Пожалуйста, укажите адрес или получите геопозицию</div>
+      </div>
+      
+      <input type="hidden" id="latitude" name="latitude" />
+      <input type="hidden" id="longitude" name="longitude" />
+      
+      <button type="submit" id="submit-btn">
+        Отправить заказ
+      </button>
+      
+      <div id="success-message" class="success-message">
+        Заказ успешно отправлен! ✅
+      </div>
+    </form>
   </div>
 
-  <label for="photo">QR код заказа:</label>
-  <input type="file" id="photo" name="photo" accept="image/*" required />
-  <img id="photo-preview" alt="Превью фото" />
-
-  <button type="button" id="get-location">Получить геопозицию</button>
-  <p id="location-status"></p>
-
-  <!-- Новое поле для адреса -->
-  <label for="address">Адрес доставки (если геопозиция не получена):</label>
-  <input
-    type="text"
-    id="address"
-    name="address"
-    placeholder="Введите адрес вручную"
-  />
-
-  <input type="hidden" id="latitude" name="latitude" />
-  <input type="hidden" id="longitude" name="longitude" />
-
-  <button type="submit">Отправить заказ</button>
-</form>
-
 <script>
-  const locationBtn = document.getElementById('get-location');
-  const locationStatus = document.getElementById('location-status');
-  const latitudeInput = document.getElementById('latitude');
-  const longitudeInput = document.getElementById('longitude');
-  const photoInput = document.getElementById('photo');
-  const photoPreview = document.getElementById('photo-preview');
-  const phoneInput = document.getElementById('phone');
-  const addressInput = document.getElementById('address');
-
-  photoInput.addEventListener('change', () => {
-    const file = photoInput.files[0];
+  // Инициализация Telegram WebApp
+  const tgWebApp = window.Telegram.WebApp;
+  tgWebApp.expand();
+  tgWebApp.enableClosingConfirmation();
+  
+  // Элементы DOM
+  const app = {
+    form: document.getElementById('order-form'),
+    phoneInput: document.getElementById('phone'),
+    photoInput: document.getElementById('photo'),
+    photoPreview: document.getElementById('photo-preview'),
+    locationBtn: document.getElementById('get-location'),
+    locationStatus: document.getElementById('location-status'),
+    latitudeInput: document.getElementById('latitude'),
+    longitudeInput: document.getElementById('longitude'),
+    addressInput: document.getElementById('address'),
+    submitBtn: document.getElementById('submit-btn'),
+    phoneError: document.getElementById('phone-error'),
+    photoError: document.getElementById('photo-error'),
+    addressError: document.getElementById('address-error'),
+    successMessage: document.getElementById('success-message')
+  };
+  
+  // Валидация формы
+  function validateForm() {
+    let isValid = true;
+    
+    // Валидация телефона
+    if (!/^\+7\d{10}$/.test(app.phoneInput.value.trim())) {
+      app.phoneError.style.display = 'block';
+      isValid = false;
+    } else {
+      app.phoneError.style.display = 'none';
+    }
+    
+    // Валидация фото
+    if (!app.photoInput.files.length) {
+      app.photoError.style.display = 'block';
+      isValid = false;
+    } else {
+      app.photoError.style.display = 'none';
+    }
+    
+    // Валидация адреса/геопозиции
+    if ((!app.latitudeInput.value || !app.longitudeInput.value) && !app.addressInput.value.trim()) {
+      app.addressError.style.display = 'block';
+      isValid = false;
+    } else {
+      app.addressError.style.display = 'none';
+    }
+    
+    return isValid;
+  }
+  
+  // Получение геолокации
+  app.locationBtn.onclick = () => {
+    if (!navigator.geolocation) {
+      app.locationStatus.textContent = 'Геолокация не поддерживается вашим браузером';
+      return;
+    }
+    
+    app.locationStatus.textContent = 'Определяем ваше местоположение...';
+    app.locationBtn.disabled = true;
+    
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        app.locationStatus.textContent = 'Геопозиция получена';
+        app.latitudeInput.value = position.coords.latitude;
+        app.longitudeInput.value = position.coords.longitude;
+        app.addressInput.value = '';
+        app.addressError.style.display = 'none';
+        app.locationBtn.disabled = false;
+      },
+      error => {
+        let errorMessage = 'Не удалось получить геопозицию';
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Доступ к геолокации запрещен. Пожалуйста, разрешите доступ в настройках.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Информация о местоположении недоступна.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Время ожидания истекло. Попробуйте снова.';
+            break;
+        }
+        app.locationStatus.textContent = errorMessage;
+        app.locationBtn.disabled = false;
+      },
+      { 
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  };
+  
+  // Превью фото
+  app.photoInput.addEventListener('change', () => {
+    const file = app.photoInput.files[0];
     if (file) {
+      if (!file.type.match('image.*')) {
+        app.photoError.textContent = 'Пожалуйста, выберите изображение';
+        app.photoError.style.display = 'block';
+        app.photoInput.value = '';
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        app.photoError.textContent = 'Размер файла не должен превышать 5MB';
+        app.photoError.style.display = 'block';
+        app.photoInput.value = '';
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onload = e => {
-        photoPreview.src = e.target.result;
-        photoPreview.style.display = 'block';
+        app.photoPreview.src = e.target.result;
+        app.photoPreview.style.display = 'block';
+        app.photoError.style.display = 'none';
       };
       reader.readAsDataURL(file);
     } else {
-      photoPreview.style.display = 'none';
-      photoPreview.src = '';
+      app.photoPreview.style.display = 'none';
+      app.photoPreview.src = '';
     }
   });
-
-  locationBtn.onclick = () => {
-    if (!navigator.geolocation) {
-      locationStatus.textContent = 'Геолокация не поддерживается вашим браузером';
-      return;
-    }
-    locationStatus.textContent = 'Получаем геопозицию...';
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        locationStatus.textContent = 'Геопозиция получена';
-        latitudeInput.value = position.coords.latitude;
-        longitudeInput.value = position.coords.longitude;
-        // Очистим поле адреса, так как геопозиция получена
-        addressInput.value = '';
-      },
-      () => {
-        locationStatus.textContent = 'Не удалось получить геопозицию';
-      },
-      { timeout: 10000 }
-    );
-  };
-
-  document.getElementById('order-form').onsubmit = async function (e) {
+  
+  // Отправка формы
+  app.form.onsubmit = async function(e) {
     e.preventDefault();
-
-    const phoneVal = phoneInput.value.trim();
-    const addressVal = addressInput.value.trim();
-
-    if (!/^\+7\d{10}$/.test(phoneVal)) {
-      alert('Введите номер телефона в формате +7XXXXXXXXXX');
-      phoneInput.focus();
-      return;
-    }
-
-    if (!photoInput.files.length) {
-      alert('Пожалуйста, выберите фото QR кода');
-      photoInput.focus();
-      return;
-    }
-
-    // Проверяем: либо координаты, либо адрес
-    if ((!latitudeInput.value || !longitudeInput.value) && !addressVal) {
-      alert('Пожалуйста, либо получите геопозицию, либо введите адрес вручную');
-      locationBtn.focus();
-      return;
-    }
-
-    const deliveryType = document.querySelector('input[name="delivery_type"]:checked').value;
-
+    
+    if (!validateForm()) return;
+    
+    app.submitBtn.disabled = true;
+    app.submitBtn.innerHTML = '<span class="loading"></span> Отправка...';
+    
     const formData = new FormData();
-    formData.append('phone', phoneVal);
-    formData.append('photo', photoInput.files[0]);
-    formData.append('delivery_type', deliveryType);
-
-    if (latitudeInput.value && longitudeInput.value) {
-      formData.append('latitude', latitudeInput.value);
-      formData.append('longitude', longitudeInput.value);
+    formData.append('phone', app.phoneInput.value.trim());
+    formData.append('photo', app.photoInput.files[0]);
+    formData.append('delivery_type', 
+      document.querySelector('input[name="delivery_type"]:checked').value);
+    
+    if (app.latitudeInput.value && app.longitudeInput.value) {
+      formData.append('latitude', app.latitudeInput.value);
+      formData.append('longitude', app.longitudeInput.value);
     } else {
-      formData.append('address', addressVal);
+      formData.append('address', app.addressInput.value.trim());
     }
-
+    
     try {
       const response = await fetch('https://5ba0-5-35-38-182.ngrok-free.app/api/order', {
         method: 'POST',
         body: formData,
       });
+      
       if (response.ok) {
-        alert('Заказ успешно отправлен!');
-        this.reset();
-        photoPreview.style.display = 'none';
-        latitudeInput.value = '';
-        longitudeInput.value = '';
-        locationStatus.textContent = '';
+        const data = await response.json();
+        app.successMessage.style.display = 'block';
+        app.form.reset();
+        app.photoPreview.style.display = 'none';
+        app.latitudeInput.value = '';
+        app.longitudeInput.value = '';
+        app.locationStatus.textContent = '';
+        
+        // Закрываем Mini App через 2 секунды
+        setTimeout(() => {
+          tgWebApp.close();
+        }, 2000);
       } else {
-        alert('Ошибка при отправке заказа. Попробуйте позже.');
+        const error = await response.text();
+        throw new Error(error || 'Ошибка сервера');
       }
     } catch (error) {
-      alert('Ошибка сети: ' + error.message);
+      alert('Ошибка при отправке заказа: ' + error.message);
+    } finally {
+      app.submitBtn.disabled = false;
+      app.submitBtn.textContent = 'Отправить заказ';
     }
   };
+  
+  // Валидация в реальном времени
+  app.phoneInput.addEventListener('input', () => {
+    if (/^\+7\d{0,10}$/.test(app.phoneInput.value)) {
+      app.phoneError.style.display = 'none';
+    }
+  });
+  
+  app.addressInput.addEventListener('input', () => {
+    if (app.addressInput.value.trim()) {
+      app.addressError.style.display = 'none';
+    }
+  });
 </script>
-
 </body>
 </html>
