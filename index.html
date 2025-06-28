@@ -5,53 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Заказ доставки</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
+<style> 
   :root {
-    --primary-color: #a50064;
-    --primary-hover: #8c0056;
-    --secondary-color: #f8f2f9;
-    --text-color: #333;
-    --light-gray: #f5f5f5;
+    --primary-color: #d4af37;         /* золотой */
+    --primary-hover: #b68c28;         /* тёмно-золотой */
+    --background-color: #0e0e0e;      /* почти чёрный */
+    --form-bg: #1b1b1b;               /* тёмно-серый */
+    --text-color: #f5f5f5;            /* светлый текст */
+    --input-bg: #2b2b2b;
+    --input-border: #555;
     --border-radius: 12px;
-    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --box-shadow: 0 4px 16px rgba(255, 215, 0, 0.1);
   }
-  
+
   body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--secondary-color);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--background-color);
     margin: 0;
     padding: 20px;
     color: var(--text-color);
     line-height: 1.5;
   }
-  
+
   h2 {
     text-align: center;
     color: var(--primary-color);
     margin-bottom: 20px;
     font-size: 1.5rem;
   }
-  
+
   form {
     max-width: 420px;
     margin: 0 auto;
-    background: #ffffff;
+    background: var(--form-bg);
     padding: 25px 30px;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
   }
-  
+
   .form-group {
     margin-bottom: 20px;
   }
-  
+
   label {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
     color: var(--text-color);
   }
-  
+
   input[type="tel"],
   input[type="text"],
   input[type="file"],
@@ -60,80 +62,84 @@
     width: 100%;
     padding: 12px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border);
     font-size: 16px;
     box-sizing: border-box;
-    background-color: var(--light-gray);
+    background-color: var(--input-bg);
+    color: var(--text-color);
     transition: all 0.3s ease;
   }
-  
+
   input:focus,
   textarea:focus,
   select:focus {
     border-color: var(--primary-color);
     outline: none;
-    box-shadow: 0 0 8px rgba(165, 0, 100, 0.25);
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
   }
-  
+
   .radio-group {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin: 12px 0;
   }
-  
+
   .radio-option {
     display: flex;
     align-items: center;
     gap: 8px;
     cursor: pointer;
   }
-  
+
   .radio-option input {
     width: auto;
     margin: 0;
   }
-  
+
   button {
     width: 100%;
-    background-color: var(--primary-color);
+    background: linear-gradient(90deg, var(--primary-color), #c49b2e);
     border: none;
-    color: white;
+    color: #111;
     font-size: 18px;
     padding: 14px;
     border-radius: 10px;
     cursor: pointer;
     margin-top: 15px;
-    transition: background-color 0.3s ease;
+    transition: background 0.3s ease;
     font-weight: 600;
+    box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
   }
-  
+
   button:hover {
-    background-color: var(--primary-hover);
+    background: linear-gradient(90deg, var(--primary-hover), #a57c1f);
+    box-shadow: 0 6px 14px rgba(181, 140, 40, 0.5);
   }
-  
+
   button:disabled {
-    background-color: #ccc;
+    background-color: #444;
+    color: #999;
     cursor: not-allowed;
   }
-  
+
   #location-status {
     font-style: italic;
     margin: 10px 0 15px 0;
-    color: #555;
+    color: #aaa;
     min-height: 20px;
   }
-  
+
   #photo-preview {
     max-width: 100%;
     max-height: 200px;
     margin-top: 10px;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
     display: none;
     object-fit: contain;
   }
-  
+
   .loading {
     display: inline-block;
     width: 20px;
@@ -144,38 +150,39 @@
     animation: spin 1s ease-in-out infinite;
     margin-right: 8px;
   }
-  
+
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
-  
+
   .error-message {
-    color: #d32f2f;
+    color: #f44336;
     font-size: 14px;
     margin-top: 5px;
     display: none;
   }
-  
+
   .success-message {
-    color: #388e3c;
+    color: #4caf50;
     text-align: center;
     margin: 20px 0;
     font-weight: 500;
     display: none;
   }
 
-.logo-wrapper {
-  text-align: center;
-  margin-bottom: 20px;
-}
+  .logo-wrapper {
+    text-align: center;
+    margin-bottom: 20px;
+  }
 
-.logo-image {
-  max-width: 160px;
-  height: auto;
-}
-
+  .logo-image {
+    max-width: 140px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+  }
 </style>
-</head>
+
 
 <body>
   <div id="app">
