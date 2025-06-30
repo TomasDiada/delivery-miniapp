@@ -405,7 +405,7 @@
     app.submitBtn.innerHTML = '<span class="loading"></span> Отправка...';
     
     const formData = new FormData();
-formData.append('comment', document.getElementById('comment').value);
+    formData.append('comment', document.getElementById('comment').value);
     formData.append('phone', app.phoneInput.value.trim());
     formData.append('photo', app.photoInput.files[0]);
     formData.append('delivery_type', 
