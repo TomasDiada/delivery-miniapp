@@ -460,15 +460,6 @@
       app.addressError.style.display = 'none';
     }
   });
-const checkStatusBtn = document.getElementById('check-status-btn');
-const statusResult = document.getElementById('order-status-result');
-
-checkStatusBtn.onclick = async () => {
-  const orderId = localStorage.getItem('order_id');
-  if (!orderId) {
-    statusResult.textContent = 'Сначала оформите заказ.';
-    return;
-  }
 
   try {
     const response = await fetch(`https://736e-5-35-38-182.ngrok-free.app/api/status/${orderId}`);
