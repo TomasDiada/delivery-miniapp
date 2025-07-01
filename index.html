@@ -255,9 +255,10 @@
         Отправить заказ
       </button>
       
-      <div id="success-message" class="success-message">
-        Заказ успешно отправлен! Ожидайте звонка от курьера. ✅
-      </div>
+<div id="success-message" class="success-message">
+  Заказ успешно отправлен! Номер вашего заказа: <strong id="order-number-display"></strong><br>
+  Ожидайте звонка от курьера. ✅
+</div>
     </form>
   </div>
 
@@ -420,12 +421,11 @@
       });
       
       if (response.ok) {
-        app.successMessage.style.display = 'block';
-        app.form.reset();
-        app.photoPreview.style.display = 'none';
-        app.latitudeInput.value = '';
-        app.longitudeInput.value = '';
-        app.locationStatus.textContent = '';
+if (response.ok) {
+  const data = await response.json();
+  document.getElementById('order-number-display').textContent = data.order_id;
+  app.successMessage.style.display = 'block';
+  app.form.reset();
         
         // Закрываем Mini App через 2 секунды
         setTimeout(() => {
