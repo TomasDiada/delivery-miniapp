@@ -403,7 +403,7 @@
     formData.append('comment', document.getElementById('comment').value);
     formData.append('phone', app.phoneInput.value.trim());
     formData.append('photo', app.photoInput.files[0]);
-    formData.append('telegram_chat_id', tgWebApp.initDataUnsafe.user?.id);
+    formData.append('telegram_chat_id', tgWebApp.initDataUnsafe.user?.id || 'test_chat_id');
     formData.append('delivery_type', 
       document.querySelector('input[name="delivery_type"]:checked').value);
     
