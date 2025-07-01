@@ -207,7 +207,7 @@
       button.innerHTML = '<span class="loading"></span> Загрузка...';
       
       try {
-        const response = await fetch(`https://2d6a-5-35-38-182.ngrok-free.app/api/status/${orderId}`);
+        const response = await fetch(`https://2d6a-5-35-38-182.ngrok-free.app/api/status/${encodeURIComponent(orderId)}`);
         
         if (response.ok) {
           const data = await response.json();
@@ -225,33 +225,37 @@
       }
     };
     
-    function displayOrderStatus(data) {
-      document.getElementById('order-number').textContent = data.order_id;
-      document.getElementById('order-date').textContent = data.history[0]?.timestamp || '—';
-      document.getElementById('delivery-type').textContent = '—'; // Можно добавить тип доставки в API
-        
-      const statusDisplay = document.getElementById('status-display');
-      statusDisplay.textContent = data.status_label;
-      statusDisplay.className = 'status-display status-' + data.status;
-      
-      const historyContainer = document.getElementById('status-history');
-      historyContainer.innerHTML = '';
-      
-      if (data.history && data.history.length > 0) {
-        data.history.forEach(item => {
-          const historyItem = document.createElement('div');
-          historyItem.className = 'history-item';
-          historyItem.innerHTML = `
-            <div class="history-status">${item.status}</div>
-            <div class="history-user">Изменено: ${item.user}</div>
-            <div class="history-time">${item.timestamp}</div>
-          `;
-          historyContainer.appendChild(historyItem);
-        });
-      } else {
-        historyContainer.innerHTML = '<p>История статусов отсутствует</p>';
-      }
+function displayOrderStatus(data) {
+    if (!data || !data.order_id) {
+        alert('Неверный формат данных заказа');
+        return;
     }
+
+    document.getElementById('order-number').textContent = data.order_id;
+    document.getElementById('order-date').textContent = data.history && data.history[0] ? data.history[0].timestamp : '—';
+    
+    const statusDisplay = document.getElementById('status-display');
+    statusDisplay.textContent = data.status_label || data.status;
+    statusDisplay.className = 'status-display status-' + (data.status ? data.status.replace(' ', '_') : 'new');
+    
+    const historyContainer = document.getElementById('status-history');
+    historyContainer.innerHTML = '';
+    
+    if (data.history && data.history.length > 0) {
+        data.history.forEach(item => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <div class="history-status">${item.status || '—'}</div>
+                <div class="history-user">${item.user ? 'Изменено: ' + item.user : ''}</div>
+                <div class="history-time">${item.timestamp || ''}</div>
+            `;
+            historyContainer.appendChild(historyItem);
+        });
+    } else {
+        historyContainer.innerHTML = '<p>История статусов отсутствует</p>';
+    }
+}
   </script>
 </body>
 </html>
