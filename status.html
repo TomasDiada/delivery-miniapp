@@ -195,48 +195,58 @@
     const tgWebApp = window.Telegram.WebApp;
     tgWebApp.expand();
     
-    document.getElementById('check-status').onclick = async function() {
-      const orderId = document.getElementById('order-id').value.trim();
-      if (!orderId) {
-        alert('Пожалуйста, введите номер заказа');
+  document.getElementById('check-status').onclick = async function() {
+    const orderId = document.getElementById('order-id').value.trim();
+    if (!orderId || !/^\d+$/.test(orderId)) {
+        alert('Пожалуйста, введите корректный номер заказа (только цифры)');
         return;
-      }
-      
-      const button = this;
-      button.disabled = true;
-      button.innerHTML = '<span class="loading"></span> Загрузка...';
-      
-      try {
-        const response = await fetch(`https://2d6a-5-35-38-182.ngrok-free.app/api/status/${encodeURIComponent(orderId)}`);
+    }
+    
+    const button = this;
+    button.disabled = true;
+    button.innerHTML = '<span class="loading"></span> Загрузка...';
+    
+    try {
+        const response = await fetch(`https://2d6a-5-35-38-182.ngrok-free.app/api/status/${orderId}`);
         
-        if (response.ok) {
-          const data = await response.json();
-          displayOrderStatus(data);
-          document.getElementById('status-result').style.display = 'block';
-        } else {
-          const error = await response.text();
-          throw new Error(error || 'Заказ не найден');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-      } catch (error) {
-        alert('Ошибка: ' + error.message);
-      } finally {
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        displayOrderStatus(data);
+        document.getElementById('status-result').style.display = 'block';
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Ошибка при получении статуса: ' + error.message);
+    } finally {
         button.disabled = false;
         button.textContent = 'Проверить';
-      }
-    };
-    
+    }
+};
+
 function displayOrderStatus(data) {
-    if (!data || !data.order_id) {
-        alert('Неверный формат данных заказа');
+    // Добавляем проверку на существование данных
+    if (!data) {
+        console.error('No data received');
         return;
     }
 
-    document.getElementById('order-number').textContent = data.order_id;
+    // Обновляем элементы с проверкой на существование свойств
+    document.getElementById('order-number').textContent = data.order_id || '—';
     document.getElementById('order-date').textContent = data.history && data.history[0] ? data.history[0].timestamp : '—';
     
     const statusDisplay = document.getElementById('status-display');
-    statusDisplay.textContent = data.status_label || data.status;
-    statusDisplay.className = 'status-display status-' + (data.status ? data.status.replace(' ', '_') : 'new');
+    statusDisplay.textContent = data.status_label || data.status || '—';
+    
+    // Нормализуем статус для класса CSS (заменяем пробелы на подчеркивания)
+    const statusClass = (data.status || 'new').toLowerCase().replace(/\s+/g, '_');
+    statusDisplay.className = 'status-display status-' + statusClass;
     
     const historyContainer = document.getElementById('status-history');
     historyContainer.innerHTML = '';
@@ -245,10 +255,16 @@ function displayOrderStatus(data) {
         data.history.forEach(item => {
             const historyItem = document.createElement('div');
             historyItem.className = 'history-item';
+            
+            const userDisplay = item.user ? 
+                (typeof item.user === 'string' ? item.user : 
+                 (item.user.username || (Array.isArray(item.user) ? item.user[0] : 'Система'))) : 
+                'Система';
+            
             historyItem.innerHTML = `
                 <div class="history-status">${item.status || '—'}</div>
-                <div class="history-user">${item.user ? 'Изменено: ' + item.user : ''}</div>
-                <div class="history-time">${item.timestamp || ''}</div>
+                <div class="history-user">Изменено: ${userDisplay}</div>
+                <div class="history-time">${item.timestamp || '—'}</div>
             `;
             historyContainer.appendChild(historyItem);
         });
