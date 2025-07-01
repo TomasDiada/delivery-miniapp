@@ -179,9 +179,10 @@
                 
                 const data = await response.json();
                 
-                if (!response.ok) {
-                    throw new Error(data.error || 'Ошибка сервера');
-                }
+if (!response.ok) {
+    showError(data.error || 'Ошибка сервера');
+    return;
+}
                 
                 displayOrderStatus(data);
                 document.getElementById('status-result').style.display = 'block';
