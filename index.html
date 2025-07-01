@@ -391,8 +391,8 @@
     }
   });
   
-  // Отправка формы
-  app.form.onsubmit = async function(e) {
+// Отправка формы
+app.form.onsubmit = async function(e) {
     e.preventDefault();
     
     if (!validateForm()) return;
@@ -407,41 +407,49 @@
     formData.append('delivery_type', 
       document.querySelector('input[name="delivery_type"]:checked').value);
     
+    // Добавляем ID пользователя Telegram, если доступно
+    if (tgWebApp.initDataUnsafe?.user?.id) {
+        formData.append('telegram_user_id', tgWebApp.initDataUnsafe.user.id);
+    }
+    
     if (app.latitudeInput.value && app.longitudeInput.value) {
-      formData.append('latitude', app.latitudeInput.value);
-      formData.append('longitude', app.longitudeInput.value);
+        formData.append('latitude', app.latitudeInput.value);
+        formData.append('longitude', app.longitudeInput.value);
     } else {
-      formData.append('address', app.addressInput.value.trim());
+        formData.append('address', app.addressInput.value.trim());
     }
     
     try {
-      const response = await fetch('https://2d6a-5-35-38-182.ngrok-free.app/api/order', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (response.ok) {
-if (response.ok) {
-  const data = await response.json();
-  document.getElementById('order-number-display').textContent = data.order_id;
-  app.successMessage.style.display = 'block';
-  app.form.reset();
+        const response = await fetch('https://2d6a-5-35-38-182.ngrok-free.app/api/order', {
+            method: 'POST',
+            body: formData,
+        });
         
-        // Закрываем Mini App через 2 секунды
-        setTimeout(() => {
-          tgWebApp.close();
-        }, 2000);
-      } else {
-        const error = await response.text();
-        throw new Error(error || 'Ошибка сервера');
-      }
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('order-number-display').textContent = data.order_id;
+            app.successMessage.style.display = 'block';
+            app.form.reset();
+            app.photoPreview.style.display = 'none';
+            app.latitudeInput.value = '';
+            app.longitudeInput.value = '';
+            app.locationStatus.textContent = '';
+            
+            // Закрываем Mini App через 2 секунды
+            setTimeout(() => {
+                tgWebApp.close();
+            }, 2000);
+        } else {
+            const error = await response.text();
+            throw new Error(error || 'Ошибка сервера');
+        }
     } catch (error) {
-      alert('Ошибка при отправке заказа: ' + error.message);
+        alert('Ошибка при отправке заказа: ' + error.message);
     } finally {
-      app.submitBtn.disabled = false;
-      app.submitBtn.textContent = 'Отправить заказ';
+        app.submitBtn.disabled = false;
+        app.submitBtn.textContent = 'Отправить заказ';
     }
-  };
+};
   
   // Валидация в реальном времени
   app.phoneInput.addEventListener('input', () => {
