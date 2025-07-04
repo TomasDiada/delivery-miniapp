@@ -135,7 +135,7 @@
     max-height: 200px;
     margin-top: 10px;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+    boxa(255, 255, 255, 0.1);
     display: none;
     object-fit: contain;
   }
@@ -234,7 +234,7 @@
       <p id="location-status"></p>
       
       <div class="form-group">
-        <label for="address">Адрес доставки (если геопозиция не получена):</label>
+        <label for="address">\(если геопозиция не получена):</label>
         <input
           type="text"
           id="address"
@@ -490,21 +490,19 @@ app.form.onsubmit = async function(e) {
         alert('Ошибка при отправке заказа: ' + error.message);
     } finally {
         app.submitBtn.disabled = false;
-        app.submitBtn.textContent = 'Отправить заказ';
+        app.submitBtn.textContent =';
     }
 };
   
   // Валидация в реальном времени
   app.phoneInput.addEventListener('input', () => {
-    if (/^\+7\d{0,10}$/.test(app.phoneInput.value)) {
+    if (/^\+7\d{0,10}$/..value)) {
       app.phoneError.style.display = 'none';
     }
   });
   
   app.addressInput.addEventListener('input', () => {
-    if (app.addressInput.value.trim()) {
-      app.addressError.style.display = 'none';
-    }
+    if (app.addressI
   });
 </script>
 </body>
