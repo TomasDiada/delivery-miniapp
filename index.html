@@ -224,6 +224,7 @@
         <label for="photo">QR код заказа:</label>
         <input type="file" id="photo" name="photo" accept="image/*" required />
         <div id="photo-error" class="error-message">Пожалуйста, загрузите фото QR кода</div>
+        <div id="photo-loading" class="loading" style="display:none;margin-top:10px;">Загрузка фото...</div>
         <img id="photo-preview" alt="Превью фото" />
       </div>
       
@@ -362,34 +363,48 @@
   
   // Превью фото
   app.photoInput.addEventListener('change', () => {
-    const file = app.photoInput.files[0];
-    if (file) {
-      if (!file.type.match('image.*')) {
-        app.photoError.textContent = 'Пожалуйста, выберите изображение';
-        app.photoError.style.display = 'block';
-        app.photoInput.value = '';
-        return;
-      }
-      
-      if (file.size > 5 * 1024 * 1024) {
-        app.photoError.textContent = 'Размер файла не должен превышать 5MB';
-        app.photoError.style.display = 'block';
-        app.photoInput.value = '';
-        return;
-      }
-      
-      const reader = new FileReader();
-      reader.onload = e => {
-        app.photoPreview.src = e.target.result;
-        app.photoPreview.style.display = 'block';
-        app.photoError.style.display = 'none';
-      };
-      reader.readAsDataURL(file);
-    } else {
-      app.photoPreview.style.display = 'none';
-      app.photoPreview.src = '';
+  const file = app.photoInput.files[0];
+  const loading = document.getElementById('photo-loading');
+  
+  if (file) {
+    app.photoPreview.style.display = 'none';
+    loading.style.display = 'inline-block';
+
+    if (!file.type.match('image.*')) {
+      app.photoError.textContent = 'Пожалуйста, выберите изображение';
+      app.photoError.style.display = 'block';
+      app.photoInput.value = '';
+      loading.style.display = 'none';
+      return;
     }
-  });
+
+    if (file.size > 5 * 1024 * 1024) {
+      app.photoError.textContent = 'Размер файла не должен превышать 5MB';
+      app.photoError.style.display = 'block';
+      app.photoInput.value = '';
+      loading.style.display = 'none';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      app.photoPreview.src = e.target.result;
+      app.photoPreview.style.display = 'block';
+      app.photoError.style.display = 'none';
+      loading.style.display = 'none';
+    };
+    reader.onerror = () => {
+      app.photoError.textContent = 'Ошибка чтения файла';
+      app.photoError.style.display = 'block';
+      loading.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  } else {
+    app.photoPreview.style.display = 'none';
+    app.photoPreview.src = '';
+    loading.style.display = 'none';
+  }
+});
   
 // Отправка формы
 
