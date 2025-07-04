@@ -392,6 +392,33 @@
   });
   
 // Отправка формы
+
+async function resizeImage(file, maxSize = 800) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const ratio = Math.min(maxSize / img.width, maxSize / img.height);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+          resolve(blob);
+        }, 'image/jpeg', 0.7);
+      };
+      img.onerror = reject;
+      img.src = event.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 app.form.onsubmit = async function(e) {
     e.preventDefault();
     
@@ -403,7 +430,8 @@ app.form.onsubmit = async function(e) {
     const formData = new FormData();
     formData.append('comment', document.getElementById('comment').value);
     formData.append('phone', app.phoneInput.value.trim());
-    formData.append('photo', app.photoInput.files[0]);
+    const compressedBlob = await resizeImage(app.photoInput.files[0]);
+    formData.append('photo', compressedBlob, 'photo.jpg');
     formData.append('delivery_type', 
       document.querySelector('input[name="delivery_type"]:checked').value);
     
