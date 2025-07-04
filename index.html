@@ -283,11 +283,25 @@
       </button>
       
 <div id="success-message" class="success-message">
-  Заказ успешно отправлен! Номер вашего заказа: <strong id="order-number-display"></strong><br>
-  Ожидайте звонка от курьера. ✅
-</div>
-    </form>
+  <div style="margin-bottom: 15px;">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin: 0 auto; display: block;">
+      <circle cx="12" cy="12" r="11" fill="#4CAF50"/>
+      <path d="M7 12L11 16L17 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
   </div>
+  <h3 style="margin-top: 0; color: var(--primary-color);">Заказ успешно оформлен!</h3>
+  <p>Номер вашего заказа: <strong id="order-number-display" style="color: var(--primary-color);"></strong></p>
+  <p>Ожидайте звонка от курьера</p>
+  
+  <div style="display: flex; gap: 10px; margin-top: 20px;">
+    <button type="button" onclick="window.Telegram.WebApp.close()" style="flex: 1; background: var(--form-bg); border: 1px solid var(--primary-color); color: var(--primary-color);">
+      Закрыть
+    </button>
+    <button type="button" onclick="location.reload()" style="flex: 1; background: var(--primary-color); color: #111;">
+      Новый заказ
+    </button>
+  </div>
+</div>
 
 <script>
   // Инициализация Telegram WebApp
@@ -563,10 +577,7 @@
           app.longitudeInput.value = '';
           app.locationStatus.textContent = '';
           
-          // Закрываем Mini App через 2 секунды
-          setTimeout(() => {
-              tgWebApp.close();
-          }, 2000);
+
       } else {
           const error = await response.text();
           throw new Error(error || 'Ошибка сервера');
